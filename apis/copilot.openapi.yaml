@@ -1,0 +1,44 @@
+openapi: 3.0.3
+info: { title: Discharge Copilot API, version: 1.0.0 }
+paths:
+  /copilot/summarize:
+    post:
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [patientId, encounterId, documentId]
+              properties:
+                patientId: { type: string }
+                encounterId: { type: string }
+                documentId: { type: string }
+      responses:
+        '200':
+          description: Summary and follow-ups
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  summary: { type: string }
+                  followUps:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FollowUp'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    FollowUp:
+      type: object
+      required: [category, title, priority]
+      properties:
+        category: { enum: [lab, med, visit, other] }
+        title: { type: string }
+        dueDate: { type: string, format: date, nullable: true }
+        priority: { enum: [low, normal, high] }

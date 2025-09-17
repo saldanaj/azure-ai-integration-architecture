@@ -1,0 +1,37 @@
+openapi: 3.0.3
+info: { title: Tasks API, version: 1.0.0 }
+paths:
+  /patients/{id}/tasks:
+    get:
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: status
+          schema: { enum: [open, done, cancelled], default: open }
+      responses:
+        '200':
+          description: Tasks
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Task' }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    Task:
+      type: object
+      properties:
+        task_id: { type: string }
+        title: { type: string }
+        category: { type: string }
+        due_date: { type: string, format: date, nullable: true }
+        priority: { type: string }
+        status: { type: string }

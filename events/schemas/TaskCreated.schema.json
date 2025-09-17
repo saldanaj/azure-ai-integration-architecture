@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "patientId": {
+      "type": "string"
+    },
+    "taskId": {
+      "type": "string"
+    },
+    "category": {
+      "enum": [
+        "lab",
+        "med",
+        "visit",
+        "other"
+      ]
+    },
+    "title": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "patientId",
+    "taskId",
+    "category",
+    "title"
+  ]
+}

@@ -1,0 +1,12 @@
+Patient: Sarah Connor (P123)
+Encounter: E456 | Discharge Date: 2024-02-12
+Primary Diagnosis: Acute decompensated heart failure.
+Hospital Course: Improved with IV diuretics, transitioned to oral medications.
+
+Follow-up Instructions:
+1. Labs: Obtain a basic metabolic panel in 3 days to monitor renal function and potassium after starting lisinopril.
+2. Visit: Schedule a cardiology follow-up within 7 days to assess volume status and titrate meds.
+3. Medication: Nursing team to call the patient in 48 hours to reinforce low-sodium diet and confirm medication adherence.
+
+Discharge Medications: Furosemide, Lisinopril, Spironolactone.
+MRN: 555443

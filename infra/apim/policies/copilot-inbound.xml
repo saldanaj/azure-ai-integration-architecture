@@ -1,0 +1,10 @@
+<policies>
+  <inbound>
+    <!-- Add validate-jwt, rate limits, and set-backend-service here -->
+  </inbound>
+  <backend />
+  <outbound>
+    <!-- Example PHI masking -->
+    <!-- <find-and-replace from="\"mrn\":\"[^\"]+\"" to="\"mrn\":\"***\"" /> -->
+  </outbound>
+</policies>

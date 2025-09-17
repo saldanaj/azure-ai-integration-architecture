@@ -1,0 +1,10 @@
+{
+  "eventType": "DischargeCreated",
+  "subject": "patients/P123/encounters/E456",
+  "data": {
+    "patientId": "P123",
+    "encounterId": "E456",
+    "documentId": "D789"
+  },
+  "dataVersion": "1.0"
+}

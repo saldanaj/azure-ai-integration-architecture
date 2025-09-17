@@ -1,0 +1,22 @@
+{
+  "followUps": [
+    {
+      "category": "lab",
+      "title": "Order basic metabolic panel to monitor renal function and potassium after lisinopril start",
+      "dueDate": "2024-02-15",
+      "priority": "normal"
+    },
+    {
+      "category": "visit",
+      "title": "Schedule cardiology follow-up visit to reassess volume status and adjust medications",
+      "dueDate": "2024-02-19",
+      "priority": "normal"
+    },
+    {
+      "category": "med",
+      "title": "Conduct nursing phone call to reinforce low-sodium diet and confirm medication adherence",
+      "dueDate": "2024-02-14",
+      "priority": "normal"
+    }
+  ]
+}
