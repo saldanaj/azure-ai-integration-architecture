@@ -1,0 +1,23 @@
+# Python virtual environments
+.venv/
+venv/
+
+# Bytecode
+__pycache__/
+*.pyc
+
+# Test caches
+.pytest_cache/
+.coverage
+
+# Local databases and generated data
+*.db
+services/fhir-listener/data/
+services/mcp-server/data/
+
+# Docker artifacts
+*.log
+
+# Local runtime data
+local-data/
+œas

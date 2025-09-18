@@ -7,11 +7,12 @@ services:
   mcp-server:
     build: ./services/mcp-server
     environment:
-      # In Azure, use MI + real endpoints. Here: stubbed.
-      # SQL / Event Grid calls are no-ops in this starter.
-      PLACEHOLDER: "true"
+      SAFE_MODE: "true"
+      TASK_DB_PATH: "/data/tasks.db"
     ports: ["9000:9000"]
     depends_on: [mock-fhir]
+    volumes:
+      - tasks-data:/data
 
   fhir-listener:
     build: ./services/fhir-listener
@@ -19,3 +20,15 @@ services:
       MCP_URL: "http://mcp-server:9000/mcp"
     ports: ["7001:7001"]
     depends_on: [mcp-server]
+
+  tasks-api:
+    build: ./services/tasks-api
+    environment:
+      TASK_DB_PATH: "/data/tasks.db"
+    ports: ["7100:7100"]
+    depends_on: [mcp-server]
+    volumes:
+      - tasks-data:/data
+
+volumes:
+  tasks-data:

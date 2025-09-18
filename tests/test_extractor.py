@@ -1,4 +1,5 @@
 import base64
+import unittest
 from importlib import util
 from pathlib import Path
 
@@ -35,12 +36,17 @@ DOCUMENT = {
 }
 
 
-def test_extract_followups_matches_expected():
-    followups = extract_followups(DOCUMENT, patient_id="P123", encounter_id="E456")
-    assert len(followups) == 3
-    assert followups[0]["category"] == "lab"
-    assert followups[0]["dueDate"] == "2024-02-15"
-    assert followups[1]["category"] == "visit"
-    assert followups[1]["dueDate"] == "2024-02-19"
-    assert followups[2]["category"] == "med"
-    assert followups[2]["dueDate"] == "2024-02-14"
+class ExtractorTests(unittest.TestCase):
+    def test_followups_match_expected(self) -> None:
+        followups = extract_followups(DOCUMENT, patient_id="P123", encounter_id="E456")
+        self.assertEqual(len(followups), 3)
+        self.assertEqual(followups[0]["category"], "lab")
+        self.assertEqual(followups[0]["dueDate"], "2024-02-15")
+        self.assertEqual(followups[1]["category"], "visit")
+        self.assertEqual(followups[1]["dueDate"], "2024-02-19")
+        self.assertEqual(followups[2]["category"], "med")
+        self.assertEqual(followups[2]["dueDate"], "2024-02-14")
+
+
+if __name__ == "__main__":
+    unittest.main()

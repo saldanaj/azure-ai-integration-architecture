@@ -1,43 +1,25 @@
-import json
-from pathlib import Path
+"""Golden tests for the structured follow-up extraction prompt."""
 
-import pytest
-from jsonschema import Draft7Validator
+from __future__ import annotations
+
+import json
+import re
+import textwrap
+import unittest
+from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 SAMPLES_DIR = BASE_DIR / "ai" / "samples"
 
-FOLLOWUPS_SCHEMA = {
-    "type": "object",
-    "required": ["followUps"],
-    "properties": {
-        "followUps": {
-            "type": "array",
-            "minItems": 1,
-            "items": {
-                "type": "object",
-                "required": ["category", "title", "dueDate", "priority"],
-                "properties": {
-                    "category": {"type": "string", "enum": ["lab", "med", "visit", "other"]},
-                    "title": {"type": "string", "minLength": 5},
-                    "dueDate": {"type": ["string", "null"]},
-                    "priority": {"type": "string", "enum": ["low", "normal", "high"]},
-                },
-                "additionalProperties": True,
-            },
-        }
-    },
-    "additionalProperties": True,
-}
-
-validator = Draft7Validator(FOLLOWUPS_SCHEMA)
+VALID_CATEGORIES = {"lab", "med", "visit", "other"}
+VALID_PRIORITIES = {"low", "normal", "high"}
+VALID_KEYS = {"category", "title", "priority", "dueDate"}
+DATE_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 
 def load_sample(name: str) -> tuple[str, dict]:
     note_path = SAMPLES_DIR / f"{name}.txt"
     expected_path = SAMPLES_DIR / f"{name}.expected.json"
-    assert note_path.exists(), f"missing note fixture: {note_path}"
-    assert expected_path.exists(), f"missing expected fixture: {expected_path}"
     with note_path.open("r", encoding="utf-8") as note_file:
         note_text = note_file.read().strip()
     with expected_path.open("r", encoding="utf-8") as expected_file:
@@ -45,20 +27,66 @@ def load_sample(name: str) -> tuple[str, dict]:
     return note_text, payload
 
 
-def assert_schema(payload: dict) -> None:
-    errors = sorted(validator.iter_errors(payload), key=lambda err: err.path)
-    if not errors:
-        return
-    lines = []
-    for err in errors:
-        path = ".".join(str(p) for p in err.path) or "<root>"
-        lines.append(f"{path}: {err.message}")
-    formatted = "\n".join(lines)
-    pytest.fail(f"followUps schema validation failed:\n{formatted}")
+def _format_errors(errors: list[str]) -> str:
+    prefix = "schema validation failed:\n"
+    return prefix + "\n".join(textwrap.indent(err, "- ") for err in errors)
 
 
-@pytest.mark.parametrize("sample", ["note1"])
-def test_expected_followups_match_schema(sample: str):
-    note_text, payload = load_sample(sample)
-    assert note_text, "fixture note text is empty"
-    assert_schema(payload)
+def _validate_payload(payload: object) -> list[str]:
+    errors: list[str] = []
+    if not isinstance(payload, dict):
+        return [f"payload must be an object, got {type(payload).__name__}"]
+
+    followups = payload.get("followUps")
+    if not isinstance(followups, list):
+        errors.append("followUps must be a list")
+        return errors
+
+    if not followups:
+        errors.append("followUps list cannot be empty")
+        return errors
+
+    for idx, item in enumerate(followups):
+        if not isinstance(item, dict):
+            errors.append(f"followUps[{idx}] must be an object")
+            continue
+
+        extra_keys = set(item) - VALID_KEYS
+        missing_keys = VALID_KEYS - set(item)
+        if missing_keys:
+            errors.append(f"followUps[{idx}] missing keys: {sorted(missing_keys)}")
+        if extra_keys:
+            errors.append(f"followUps[{idx}] has unexpected keys: {sorted(extra_keys)}")
+
+        category = item.get("category")
+        if category not in VALID_CATEGORIES:
+            errors.append(f"followUps[{idx}].category invalid: {category!r}")
+
+        title = item.get("title")
+        if not isinstance(title, str) or len(title.strip()) < 5:
+            errors.append(f"followUps[{idx}].title must be >=5 chars")
+
+        priority = item.get("priority")
+        if priority not in VALID_PRIORITIES:
+            errors.append(f"followUps[{idx}].priority invalid: {priority!r}")
+
+        due_date = item.get("dueDate")
+        if due_date is not None:
+            if not isinstance(due_date, str) or not DATE_PATTERN.match(due_date):
+                errors.append(f"followUps[{idx}].dueDate invalid: {due_date!r}")
+
+    return errors
+
+
+class GoldenExtractionTests(unittest.TestCase):
+    def test_note1_schema(self) -> None:
+        note_text, payload = load_sample("note1")
+        self.assertTrue(note_text, "fixture note text is empty")
+
+        errors = _validate_payload(payload)
+        if errors:
+            self.fail(_format_errors(errors))
+
+
+if __name__ == "__main__":
+    unittest.main()

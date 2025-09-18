@@ -13,6 +13,7 @@ The architecture processes discharge events, extracts follow-up tasks using AI, 
 ### Core Services
 - **fhir-listener** (`services/fhir-listener/`): Flask-based event processor that receives DischargeCreated events, validates Event Grid handshakes, and orchestrates MCP tool calls
 - **mcp-server** (`services/mcp-server/`): FastMCP server providing tools for FHIR document retrieval, task management, and Event Grid publishing
+- **tasks-api** (`services/tasks-api/`): Task management service for follow-up orchestration
 - **mock-fhir** (`services/mock-fhir/`): Flask service simulating FHIR DocumentReference endpoints for local development
 
 ### Key Directories
@@ -39,17 +40,26 @@ docker compose up -d --build
 # Or use the Makefile
 make up
 
-# View logs
+# View logs (default: fhir-listener, mcp-server, mock-fhir)
 docker compose logs -f fhir-listener mcp-server mock-fhir
 make logs
+
+# View logs for specific services
+make logs SERVICES="fhir-listener mcp-server"
 
 # Stop services
 docker compose down -v
 make down
 ```
 
-### Testing the System
+### Testing
 ```bash
+# Run all tests (uses Python unittest)
+python3 -m unittest discover -s tests
+
+# Run specific test file
+python3 -m unittest tests.test_extractor
+
 # Test mock FHIR service
 curl http://localhost:8080/fhir/DocumentReference/D789
 
@@ -63,6 +73,7 @@ curl -X POST http://localhost:7001/events \
 - Mock FHIR: http://localhost:8080
 - FHIR Listener: http://localhost:7001
 - MCP Server: http://localhost:9000
+- Tasks API: http://localhost:8000
 
 ## Azure Deployment
 
